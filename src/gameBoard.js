@@ -60,7 +60,8 @@ class GameBoard {
   setHitCallback(callback) {
     this.hitCallback = callback;
   }
-  hasBeenAttacked(state) {
+  hasBeenAttacked(state, pos) {
+    console.log(`attacked: (${pos[0]}, ${pos[1]})`);
     this.hitCallback(state);
   }
 
@@ -94,16 +95,19 @@ function updateGridUI(board) {
 class Block {
   #board;
   #pos;
-  #attacked = false;
-  #haveShip = false;
-  #myShip = null;
+  #myShip;
   #DOMUpdateCallback;
+  #attacked = false;
+  #safe = false;
+  #haveShip = false;
+
   constructor(x, y, gameBoard) {
     this.#board = gameBoard;
     this.#pos = Array(2);
     this.#pos[0] = x;
     this.#pos[1] = y;
   }
+
   getX = () => this.#pos[0];
   getY = () => this.#pos[1];
 
@@ -112,6 +116,9 @@ class Block {
   }
   get isAttacked() {
     return this.#attacked;
+  }
+  get isSafe() {
+    return this.#safe;
   }
   get isHaveShip() {
     return this.#haveShip;
@@ -123,20 +130,38 @@ class Block {
     if (!bot && !this.#board.isClickable()) {
       return;
     }
-    if (!this.#attacked) {
-      console.log(`attacked: (${this.#pos[0]}, ${this.#pos[1]})`);
+    if (!this.#attacked && !this.#safe) {
       this.#attacked = true;
       if (this.#haveShip) {
         this.#myShip.sink();
         this.#board.loseFleet();
-        this.#board.hasBeenAttacked(SHIP_HIT_STATE);
+        this.#board.hasBeenAttacked(SHIP_HIT_STATE, [this.getX(), this.getY()]);
+        markSafeBlocks(this.#board, this.#pos);
       } else {
-        this.#board.hasBeenAttacked(EMPTY_HIT_STATE);
+        this.#board.hasBeenAttacked(EMPTY_HIT_STATE, [
+          this.getX(),
+          this.getY(),
+        ]);
       }
+      if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
     } else if (bot) {
-      console.error("bot trying to attack already attacked block");
+      if (this.#attacked)
+        console.error("bot trying to attack already attacked block");
+      else if (this.#safe) console.error("bot trying to attack a safe block");
     }
-    if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
+  }
+  markSafe() {
+    if (this.#haveShip) {
+      throw new Error(
+        `Safe block has a ship! (${this.#pos[0]}, ${this.#pos[1]}`,
+      );
+    }
+
+    if (!this.#attacked && !this.#safe) {
+      console.log(`Safe: (${this.#pos[0]}, ${this.#pos[1]})`);
+      this.#safe = true;
+      if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
+    }
   }
   placeShip(ship) {
     if (!this.#haveShip) {
@@ -145,6 +170,10 @@ class Block {
       this.#board.addFleet();
       if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
     }
+  }
+  fleetHasSank() {
+    markSafeBlocks(this.#board, this.#pos);
+    if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
   }
   setDOMUpdateCallback(input) {
     if (!this.#DOMUpdateCallback) {
@@ -155,6 +184,54 @@ class Block {
   callDOMUpdateCallback() {
     if (this.#DOMUpdateCallback) this.#DOMUpdateCallback();
     else console.log("DOMUpdateCallback is not assigned");
+  }
+}
+
+function markSafeBlocks(board, pos) {
+  let x = pos[0];
+  let y = pos[1];
+
+  // upper right
+  if (board.getBlock(x + 1, y - 1)) {
+    console.log("found block upper right");
+    board.getBlock(x + 1, y - 1).markSafe();
+  }
+  // upper left
+  if (board.getBlock(x - 1, y - 1)) {
+    console.log("found block upper left");
+    board.getBlock(x - 1, y - 1).markSafe();
+  }
+  // bottom right
+  if (board.getBlock(x + 1, y + 1)) {
+    console.log("found block bottom right");
+    board.getBlock(x + 1, y + 1).markSafe();
+  }
+  // bottom left
+  if (board.getBlock(x - 1, y + 1)) {
+    console.log("found block bottom left");
+    board.getBlock(x - 1, y + 1).markSafe();
+  }
+
+  if (board.getBlock(pos[0], pos[1]).ship.isFleetSank) {
+    // right
+    if (board.getBlock(x + 1, y) && !board.getBlock(x + 1, y).isHaveShip) {
+      board.getBlock(x + 1, y).markSafe();
+    }
+    // left
+    if (board.getBlock(x - 1, y) && !board.getBlock(x - 1, y).isHaveShip) {
+      console.log("found block left");
+      board.getBlock(x - 1, y).markSafe();
+    }
+    // up
+    if (board.getBlock(x, y - 1) && !board.getBlock(x, y - 1).isHaveShip) {
+      console.log("found block up");
+      board.getBlock(x, y - 1).markSafe();
+    }
+    // down
+    if (board.getBlock(x, y + 1) && !board.getBlock(x, y + 1).isHaveShip) {
+      console.log("found block down");
+      board.getBlock(x, y + 1).markSafe();
+    }
   }
 }
 

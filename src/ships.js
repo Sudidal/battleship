@@ -7,6 +7,7 @@ class Fleet {
     this.#ships = Array(this.#length);
     const curPos = pos;
     this.#horizontal = horizontal;
+    this.sankedShips = 0;
 
     if (this.#horizontal) {
       curPos[0] -= Math.floor(this.#length / 2);
@@ -15,7 +16,7 @@ class Fleet {
     }
 
     for (let i = 0; i < this.#length; i++) {
-      const newShip = new Ship(curPos, gameBoard);
+      const newShip = new Ship(curPos, gameBoard, this);
       this.#ships[i] = newShip;
 
       if (this.#horizontal) {
@@ -25,16 +26,38 @@ class Fleet {
       }
     }
   }
+
+  loseShip() {
+    this.sankedShips++;
+    if (this.sankedShips >= this.#length) {
+      this.#ships.forEach((ship) => {
+        ship.fleetHasSank();
+      });
+    }
+  }
 }
 
 class Ship {
   #sank = false;
-  constructor(pos, gameBoard) {
-    gameBoard.getBlock(pos[0], pos[1]).placeShip(this);
+  #fleetSank = false;
+  constructor(pos, gameBoard, fleet) {
+    this.myBlock = gameBoard.getBlock(pos[0], pos[1]);
+    this.myBlock.placeShip(this);
+    this.fleet = fleet;
   }
-  sink = () => (this.#sank = true);
   get isSank() {
     return this.#sank;
+  }
+  get isFleetSank() {
+    return this.#fleetSank;
+  }
+  sink() {
+    this.#sank = true;
+    this.fleet.loseShip();
+  }
+  fleetHasSank() {
+    this.#fleetSank = true;
+    this.myBlock.fleetHasSank();
   }
 }
 

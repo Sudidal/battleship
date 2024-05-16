@@ -37,3 +37,10 @@ body {
 .sank-ship-block {
     background-color: rgb(255, 0, 0);
 }
+.safe-block {
+    background-color: rgb(104, 104, 104);
+}
+.fleet-sank-block {
+    background-color: rgb(255, 0, 0);
+    border: 1px solid green;
+}
