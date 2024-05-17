@@ -193,22 +193,18 @@ function markSafeBlocks(board, pos) {
 
   // upper right
   if (board.getBlock(x + 1, y - 1)) {
-    console.log("found block upper right");
     board.getBlock(x + 1, y - 1).markSafe();
   }
   // upper left
   if (board.getBlock(x - 1, y - 1)) {
-    console.log("found block upper left");
     board.getBlock(x - 1, y - 1).markSafe();
   }
   // bottom right
   if (board.getBlock(x + 1, y + 1)) {
-    console.log("found block bottom right");
     board.getBlock(x + 1, y + 1).markSafe();
   }
   // bottom left
   if (board.getBlock(x - 1, y + 1)) {
-    console.log("found block bottom left");
     board.getBlock(x - 1, y + 1).markSafe();
   }
 
@@ -219,17 +215,14 @@ function markSafeBlocks(board, pos) {
     }
     // left
     if (board.getBlock(x - 1, y) && !board.getBlock(x - 1, y).isHaveShip) {
-      console.log("found block left");
       board.getBlock(x - 1, y).markSafe();
     }
     // up
     if (board.getBlock(x, y - 1) && !board.getBlock(x, y - 1).isHaveShip) {
-      console.log("found block up");
       board.getBlock(x, y - 1).markSafe();
     }
     // down
     if (board.getBlock(x, y + 1) && !board.getBlock(x, y + 1).isHaveShip) {
-      console.log("found block down");
       board.getBlock(x, y + 1).markSafe();
     }
   }

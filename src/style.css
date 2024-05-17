@@ -41,6 +41,5 @@ body {
     background-color: rgb(104, 104, 104);
 }
 .fleet-sank-block {
-    background-color: rgb(255, 0, 0);
-    border: 1px solid green;
+    background-color: rgb(112, 0, 0);
 }
