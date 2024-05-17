@@ -8,6 +8,11 @@
 body {
     height: 100vh;
 }
+.container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 .grid-container {
     padding: 20px;
     height: 100%;
@@ -23,9 +28,15 @@ body {
     grid-template-columns: repeat(10, 1fr);
     grid-template-rows: repeat(10, 1fr);
 }
+.active-board {
+    --block-border-color: black;
+}
+.inactive-board {
+    --block-border-color: grey;
+}
 
 .block {
-    border: 1px solid black;
+    border: 1px solid var(--block-border-color);
     aspect-ratio: 1 / 1;
 }
 .attacked-block {
@@ -42,4 +53,10 @@ body {
 }
 .fleet-sank-block {
     background-color: rgb(112, 0, 0);
+}
+.start-btn {
+    height: 30px;
+    font-weight: bold;
+    font-size: 15px;
+    letter-spacing: 2px;
 }

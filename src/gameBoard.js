@@ -1,4 +1,4 @@
-import { createGridUI } from "./UI.js";
+import { createGridUI } from "./boardUI.js";
 
 const EMPTY_HIT_STATE = "empty";
 const SHIP_HIT_STATE = "ship";
@@ -8,17 +8,21 @@ class GameBoard {
     this.length = dimensions * dimensions;
     this.blocks = Array(this.length);
     this.hitCallback = null;
+    this.DOMCallback = null;
     this.shipsCount = 0;
     this.destroyedShipsCount = 0;
     this.finished = false;
     this.clickable = clickable;
     this.shipsHidden = shipsHidden;
+    this.active = false;
     initializeGrid(dimensions, this);
+    this.callDOMCallback();
   }
 
   isClickable = () => this.clickable;
   isShipsHidden = () => this.shipsHidden;
   isFinished = () => this.finished;
+  isActive = () => this.active;
   getArray = () => this.blocks;
 
   getLength() {
@@ -44,25 +48,37 @@ class GameBoard {
   setShipsHidden(toggle) {
     if (this.shipsHidden !== toggle) {
       this.shipsHidden = toggle;
-      updateGridUI(this);
+      updateALLBlocksUI(this);
     }
   }
-  setClickableShipsHidden(clickableToggle, shipsHiddenToggle) {
-    if (this.clickable !== clickableToggle) {
-      this.clickable = clickableToggle;
+  setBoardState(clickable, shipsHidden, active) {
+    if (this.clickable !== clickable) {
+      this.clickable = clickable;
     }
-    if (this.shipsHidden !== shipsHiddenToggle) {
-      this.shipsHidden = shipsHiddenToggle;
-      updateGridUI(this);
+    if (this.shipsHidden !== shipsHidden) {
+      this.shipsHidden = shipsHidden;
+      updateALLBlocksUI(this);
+    }
+    if (this.active !== active) {
+      this.active = active;
+      this.callDOMCallback();
     }
   }
 
   setHitCallback(callback) {
     this.hitCallback = callback;
   }
+  setDOMCallback(callback) {
+    this.DOMCallback = callback;
+  }
   hasBeenAttacked(state, pos) {
     console.log(`attacked: (${pos[0]}, ${pos[1]})`);
     this.hitCallback(state);
+  }
+  callDOMCallback() {
+    if (this.DOMCallback) {
+      this.DOMCallback();
+    }
   }
 
   addFleet = () => this.shipsCount++;
@@ -86,7 +102,7 @@ function initializeGrid(dimensions, board) {
   console.log("initialized Grid");
   createGridUI(board);
 }
-function updateGridUI(board) {
+function updateALLBlocksUI(board) {
   board.getArray().forEach((element) => {
     element.callDOMUpdateCallback();
   });

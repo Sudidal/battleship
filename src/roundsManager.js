@@ -1,10 +1,14 @@
 import { createGameBoard } from "./initializer.js";
 import { autoPlayer } from "./autoPlayer.js";
 
-const playerBoard = createGameBoard(false, false);
-const botBoard = createGameBoard(true, true);
+const playerBoard = createGameBoard(false, true);
+const botBoard = createGameBoard(false, true);
 
 const bot = new autoPlayer(botBoard, playerBoard);
+
+function startGame() {
+  playerTurn();
+}
 
 playerBoard.setHitCallback((state) => {
   if (playerBoard.isFinished()) {
@@ -31,20 +35,20 @@ botBoard.setHitCallback((state) => {
   }
 });
 
-playerTurn();
-
 function playerTurn() {
   console.log("it's player's turn");
-  playerBoard.setClickableShipsHidden(false, false);
-  botBoard.setClickableShipsHidden(true, true);
+  playerBoard.setBoardState(false, false, false);
+  botBoard.setBoardState(true, true, true);
 }
 function botTurn() {
   console.log("it's bot's turn");
-  playerBoard.setClickableShipsHidden(false, false);
-  botBoard.setClickableShipsHidden(false, true);
+  playerBoard.setBoardState(false, false, true);
+  botBoard.setBoardState(false, true, false);
   bot.chooseBlock();
 }
 function End() {
-  playerBoard.setClickableShipsHidden(false, false);
-  botBoard.setClickableShipsHidden(false, false);
+  playerBoard.setBoardState(false, false, false);
+  botBoard.setBoardState(false, false, false);
 }
+
+export { startGame };
