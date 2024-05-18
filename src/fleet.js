@@ -2,31 +2,37 @@ class Fleet {
   #horizontal;
   #ships;
   #length;
-  constructor(length, pos, gameBoard, horizontal) {
+  constructor(length, board, horizontal) {
     this.#length = length;
     this.#ships = Array(this.#length);
-    const curPos = pos;
     this.#horizontal = horizontal;
+    this.board = board;
     this.sankedShips = 0;
-
-    if (this.#horizontal) {
-      curPos[0] -= Math.floor(this.#length / 2);
-    } else {
-      curPos[1] -= Math.floor(this.#length / 2);
-    }
-
-    for (let i = 0; i < this.#length; i++) {
-      const newShip = new Ship(curPos, gameBoard, this);
-      this.#ships[i] = newShip;
-
-      if (this.#horizontal) {
-        curPos[0]++;
-      } else {
-        curPos[1]++;
-      }
-    }
   }
 
+  initialize(pos) {
+    const blocksToTake = this.calculateBlocksToTake(pos);
+    for (let i = 0; i < this.#length; i++) {
+      const newShip = new Ship(blocksToTake[i], this.board, this);
+      this.#ships[i] = newShip;
+    }
+  }
+  calculateBlocksToTake(pos) {
+    let blocksToTake = Array();
+    let curX = pos[0];
+    let curY = pos[1];
+    if (this.#horizontal) curX -= Math.floor(this.#length / 2);
+    else curY -= Math.floor(this.#length / 2);
+
+    for (let i = 0; i < this.#length; i++) {
+      //Arrays are pass by reference!!!
+      blocksToTake.push([curX, curY]);
+
+      if (this.#horizontal) curX++;
+      else curY++;
+    }
+    return blocksToTake;
+  }
   loseShip() {
     this.sankedShips++;
     if (this.sankedShips >= this.#length) {
@@ -50,6 +56,9 @@ class Ship {
   }
   get isFleetSank() {
     return this.#fleetSank;
+  }
+  get getFleet() {
+    return this.fleet;
   }
   sink() {
     this.#sank = true;

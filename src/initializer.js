@@ -1,16 +1,31 @@
 import { GameBoard } from "./gameBoard.js";
-import { Fleet } from "./ships.js";
+import { Fleet } from "./fleet.js";
+import { randomPosition, randomAlign } from "./blocksAligner.js";
+
+const fleets = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
 
 function createGameBoard(clickable, shipsHidden) {
+  let newGameBoard = null;
+  let counter = 0;
+  while (!newGameBoard) {
+    counter++;
+    newGameBoard = Initialize(clickable, shipsHidden);
+  }
+  console.log("Tried " + counter + " times to make a good alignment");
+  return newGameBoard;
+}
+
+function Initialize(clickable, shipsHidden) {
   const newGameBoard = new GameBoard(clickable, shipsHidden);
-
-  new Fleet(3, [5, 4], newGameBoard, true);
-  new Fleet(3, [2, 2], newGameBoard, false);
-  new Fleet(2, [7, 8], newGameBoard, true);
-  new Fleet(1, [0, 0], newGameBoard, true);
-  new Fleet(2, [2, 7], newGameBoard, false);
-  new Fleet(1, [9, 9], newGameBoard, true);
-
+  for (let i = 0; i < fleets.length; i++) {
+    const randomOrientation = randomAlign();
+    const newFleet = new Fleet(fleets[i], newGameBoard, randomOrientation);
+    const randomPos = randomPosition(newGameBoard, newFleet);
+    if (!randomPos) {
+      return null;
+    }
+    newFleet.initialize(randomPos);
+  }
   return newGameBoard;
 }
 

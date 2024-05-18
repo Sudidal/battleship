@@ -149,6 +149,8 @@ function guessNextIndex(board, pos) {
     const randomIndex = Math.floor(
       Math.random() * (blocksWithShips.length - 1),
     );
+    // Error too much recursion
+
     const x = blocksWithShips[randomIndex][0];
     const y = blocksWithShips[randomIndex][1];
     return guessNextIndex(board, [

@@ -3,6 +3,8 @@ import { autoPlayer } from "./autoPlayer.js";
 
 const playerBoard = createGameBoard(false, true);
 const botBoard = createGameBoard(false, true);
+playerBoard.ready();
+botBoard.ready();
 
 const bot = new autoPlayer(botBoard, playerBoard);
 
