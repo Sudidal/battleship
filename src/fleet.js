@@ -10,12 +10,11 @@ class Fleet {
     this.sankedShips = 0;
   }
 
+  getShips = () => this.#ships;
+  getDirection = () => this.#horizontal;
+
   initialize(pos) {
-    const blocksToTake = this.calculateBlocksToTake(pos);
-    for (let i = 0; i < this.#length; i++) {
-      const newShip = new Ship(blocksToTake[i], this.board, this);
-      this.#ships[i] = newShip;
-    }
+    this.occupyBlocks(pos);
   }
   calculateBlocksToTake(pos) {
     let blocksToTake = Array();
@@ -41,6 +40,22 @@ class Fleet {
       });
     }
   }
+  occupyBlocks(pos) {
+    if (this.#ships.filter(() => true).length > 0) {
+      this.cleanUp();
+    }
+    const blocksToTake = this.calculateBlocksToTake(pos);
+    for (let i = 0; i < this.#length; i++) {
+      const newShip = new Ship(blocksToTake[i], this.board, this);
+      this.#ships[i] = newShip;
+    }
+  }
+  cleanUp() {
+    for (let i = 0; i < this.#ships.length; i++) {
+      this.#ships[i].block.removeShip();
+      this.#ships[i] = null;
+    }
+  }
 }
 
 class Ship {
@@ -59,6 +74,9 @@ class Ship {
   }
   get getFleet() {
     return this.fleet;
+  }
+  get block() {
+    return this.myBlock;
   }
   sink() {
     this.#sank = true;

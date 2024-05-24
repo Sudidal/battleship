@@ -1,7 +1,7 @@
 import { getSorroundingBlocks } from "./gameBoard.js";
 
 function randomPosition(board, fleet, triedCoords = null) {
-  console.log(triedCoords);
+  // console.log(triedCoords);
   if (triedCoords) {
     if (triedCoords.length < 1) {
       return null;
@@ -22,10 +22,10 @@ function randomPosition(board, fleet, triedCoords = null) {
   }
   const valid = checkPositionValidity(board, fleet, [x, y]);
   if (valid) {
-    console.log(`(${x}, ${y})`);
+    // console.log(`(${x}, ${y})`);
     return [x, y];
   } else {
-    console.log(`invalid, choosing another coord: (${x}, ${y})`);
+    // console.log(`invalid, choosing another coord: (${x}, ${y})`);
     triedCoords.splice(randomIndex, 1);
     return randomPosition(board, fleet, triedCoords);
   }
@@ -55,9 +55,9 @@ function checkPositionValidity(board, fleet, pos) {
         );
         sorroundingBlocks.forEach((sorroundingBlock) => {
           if (sorroundingBlock.isHaveShip) {
-            if (sorroundingBlock.ship.getFleet !== fleet) {
+            if (sorroundingBlock.getShip.getFleet !== fleet) {
               valid = false;
-              console.log("sorrounding block has a ship");
+              // console.log("sorrounding block has a ship");
             }
           }
         });

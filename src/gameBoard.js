@@ -4,7 +4,7 @@ const EMPTY_HIT_STATE = "empty";
 const SHIP_HIT_STATE = "ship";
 
 class GameBoard {
-  constructor(clickable, shipsHidden, dimensions = 10) {
+  constructor(clickable, shipsHidden, editable, dimensions = 10) {
     this.dimensions = dimensions;
     this.length = this.dimensions * this.dimensions;
     this.blocks = Array(this.length);
@@ -16,11 +16,13 @@ class GameBoard {
     this.clickable = clickable;
     this.shipsHidden = shipsHidden;
     this.active = false;
+    this.editable = editable;
     initializeGrid(this.dimensions, this);
   }
 
   ready() {
     createGridUI(this);
+    updateALLBlocksUI(this);
     this.callDOMCallback();
   }
 
@@ -28,6 +30,7 @@ class GameBoard {
   isShipsHidden = () => this.shipsHidden;
   isFinished = () => this.finished;
   isActive = () => this.active;
+  isEditable = () => this.editable;
   getArray = () => this.blocks;
   getDimensions = () => this.dimensions;
 
@@ -38,36 +41,31 @@ class GameBoard {
     const block = this.blocks.find(
       (item) => item && item.getX() === x && item.getY() === y,
     );
-    if (block) return block;
-    else console.log(`Block Not Found! (${x}, ${y})`);
+    return block;
   }
   getBlockByIndex(index) {
     if (this.blocks[index]) return this.blocks[index];
     else console.log("Item not found");
   }
-
-  setClickable(toggle) {
-    if (this.clickable !== toggle) {
-      this.clickable = toggle;
-    }
-  }
-  setShipsHidden(toggle) {
-    if (this.shipsHidden !== toggle) {
-      this.shipsHidden = toggle;
-      updateALLBlocksUI(this);
-    }
-  }
-  setBoardState(clickable, shipsHidden, active) {
+  setBoardState(clickable, shipsHidden, active, editable) {
+    let needUpdate = false;
     if (this.clickable !== clickable) {
       this.clickable = clickable;
     }
     if (this.shipsHidden !== shipsHidden) {
       this.shipsHidden = shipsHidden;
-      updateALLBlocksUI(this);
+      needUpdate = true;
+    }
+    if (this.editable !== editable) {
+      this.editable = editable;
+      needUpdate = true;
     }
     if (this.active !== active) {
       this.active = active;
       this.callDOMCallback();
+    }
+    if (needUpdate) {
+      updateALLBlocksUI(this);
     }
   }
 
@@ -110,8 +108,9 @@ function initializeGrid(dimensions, board) {
   console.log("initialized Grid");
 }
 function updateALLBlocksUI(board) {
-  board.getArray().forEach((element) => {
-    element.callDOMUpdateCallback();
+  console.log("updating all blocks");
+  board.getArray().forEach((block) => {
+    block.callDOMUpdateCallback();
   });
 }
 
@@ -120,6 +119,7 @@ class Block {
   #pos;
   #myShip;
   #DOMUpdateCallback;
+  DOMEelement;
   #attacked = false;
   #safe = false;
   #haveShip = false;
@@ -146,8 +146,11 @@ class Block {
   get isHaveShip() {
     return this.#haveShip;
   }
-  get ship() {
+  get getShip() {
     return this.#myShip;
+  }
+  get getDOMElement() {
+    return this.DOMEelement;
   }
   attack(bot = false) {
     if (!bot && !this.#board.isClickable()) {
@@ -188,19 +191,26 @@ class Block {
       if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
     }
   }
+  removeShip() {
+    this.#myShip = null;
+    this.#haveShip = false;
+    this.#board.loseFleet();
+    if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
+  }
   fleetHasSank() {
     markSafeBlocks(this.#board, this.#pos);
     if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
   }
-  setDOMUpdateCallback(input) {
-    if (!this.#DOMUpdateCallback) {
-      this.#DOMUpdateCallback = input;
-      this.callDOMUpdateCallback();
-    }
+  setDOMInfo(element, callback) {
+    this.#DOMUpdateCallback = callback;
+    this.DOMEelement = element;
   }
   callDOMUpdateCallback() {
     if (this.#DOMUpdateCallback) this.#DOMUpdateCallback();
     else console.error("DOMUpdateCallback is not assigned");
+  }
+  beingDragged() {
+    console.log("fuck, I'm being dragged");
   }
 }
 
@@ -218,7 +228,7 @@ function markSafeBlocks(board, pos) {
       );
   });
 
-  if (board.getBlock(pos[0], pos[1]).ship.isFleetSank) {
+  if (board.getBlock(pos[0], pos[1]).getShip.isFleetSank) {
     const linearSafeBlocks = getSorroundingBlocks(board, pos, false, true);
     linearSafeBlocks.forEach((block) => {
       block.markSafe();

@@ -48,7 +48,7 @@ class autoPlayer {
         if (
           this.#lastAttackedBlock &&
           this.#lastAttackedBlock.isHaveShip &&
-          !this.#lastAttackedBlock.ship.isFleetSank
+          !this.#lastAttackedBlock.getShip.isFleetSank
         ) {
           console.log("I started targeting a new fleet");
           this.#targetedBlock = this.#lastAttackedBlock;

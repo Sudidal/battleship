@@ -1,8 +1,8 @@
 import { createGameBoard } from "./initializer.js";
 import { autoPlayer } from "./autoPlayer.js";
 
-const playerBoard = createGameBoard(false, true);
-const botBoard = createGameBoard(false, true);
+const playerBoard = createGameBoard(false, false, true);
+const botBoard = createGameBoard(false, true, false);
 playerBoard.ready();
 botBoard.ready();
 
@@ -39,18 +39,18 @@ botBoard.setHitCallback((state) => {
 
 function playerTurn() {
   console.log("it's player's turn");
-  playerBoard.setBoardState(false, false, false);
-  botBoard.setBoardState(true, true, true);
+  playerBoard.setBoardState(false, false, false, false);
+  botBoard.setBoardState(true, true, true, false);
 }
 function botTurn() {
   console.log("it's bot's turn");
-  playerBoard.setBoardState(false, false, true);
-  botBoard.setBoardState(false, true, false);
+  playerBoard.setBoardState(false, false, true, false);
+  botBoard.setBoardState(false, true, false, false);
   bot.chooseBlock();
 }
 function End() {
-  playerBoard.setBoardState(false, false, false);
-  botBoard.setBoardState(false, false, false);
+  playerBoard.setBoardState(false, false, false, false);
+  botBoard.setBoardState(false, false, false, false);
 }
 
 export { startGame };
