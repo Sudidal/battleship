@@ -2,20 +2,28 @@ import {
   setDefaultBehaviour,
   dragElement,
   setDragCallBack,
+  setMoveCallback,
   setDropCallBack,
 } from "drag-drop-system";
 import { requestBlock } from "./boardUI.js";
+import checkBlockValidity from "./checkBlockValidity.js";
 
 let event = null;
 let draggedBlock = null;
 
 setDefaultBehaviour(false);
 setDragCallBack(dragFleet);
+setMoveCallback(moveFleet);
 setDropCallBack(dropFleet);
 
 function dragFleet(dragEv) {
   event = dragEv;
   requestBlock(dragEv.target, onReceiveBlockDrag);
+}
+function moveFleet(moveEv, draggedElement, posX, posY, moveFunction) {
+  requestBlock(moveEv.target, (moveBlock) => {
+    onReceiveBlockMove(draggedElement, moveBlock, posX, posY, moveFunction);
+  });
 }
 function dropFleet(dropEv, draggedElement) {
   event = null;
@@ -65,6 +73,21 @@ function onReceiveBlockDrag(block) {
   dragElement(obj);
 }
 
+function onReceiveBlockMove(element, moveBlock, posX, posY, moveFunction) {
+  const pos = [moveBlock.getX(), moveBlock.getY()];
+  const valid = checkBlockValidity(
+    draggedBlock.getGameBoard,
+    draggedBlock.getShip.getFleet,
+    pos,
+  );
+  if (valid) {
+    element.style.border = "1px solid green";
+  } else {
+    element.style.border = "1px solid red";
+  }
+  moveFunction(element, posX, posY);
+}
+
 function onReceiveBlockDrop(
   dropElement,
   draggedElement,
@@ -73,7 +96,10 @@ function onReceiveBlockDrop(
 ) {
   const fleet = draggedBlock.getShip.getFleet;
   const pos = [dropBlock.getX(), dropBlock.getY()];
-  fleet.initialize(pos);
+  const valid = checkBlockValidity(draggedBlock.getGameBoard, fleet, pos);
+  if (valid) {
+    fleet.initialize(pos);
+  }
   draggedElement.remove();
   draggedBlock = null;
 }
