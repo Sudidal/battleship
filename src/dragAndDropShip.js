@@ -74,7 +74,7 @@ function onReceiveBlockDrag(block) {
 }
 
 function onReceiveBlockMove(element, moveBlock, posX, posY, moveFunction) {
-  const pos = [moveBlock.getX(), moveBlock.getY()];
+  const pos = moveBlock.getPos();
   const valid = checkBlockValidity(
     draggedBlock.getGameBoard,
     draggedBlock.getShip.getFleet,
@@ -95,7 +95,7 @@ function onReceiveBlockDrop(
   draggedBlock,
 ) {
   const fleet = draggedBlock.getShip.getFleet;
-  const pos = [dropBlock.getX(), dropBlock.getY()];
+  const pos = dropBlock.getPos;
   const valid = checkBlockValidity(draggedBlock.getGameBoard, fleet, pos);
   if (valid) {
     fleet.initialize(pos);

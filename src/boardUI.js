@@ -3,12 +3,14 @@ const gridContainer = document.querySelector(".grid-container");
 const Board_CLASS = "board";
 const ACTIVE_Board_CLASS = "active-board";
 const INACTIVE_Board_CLASS = "inactive-board";
+
 const BLOCK_CLASS = "block";
 const SHIP_BLOCK_CLASS = "ship-block";
 const SANK_SHIP_BLOCK_CLASS = "sank-ship-block";
 const FLEET_SANK_SHIP_BLOCK_CLASS = "fleet-sank-block";
 const ATTACKED_BLOCK_CLASS = "attacked-block";
 const SAFE_BLOCK_CLASS = "safe-block";
+
 const DRAGGABLE_CLASS = "custom-draggable";
 const COWARDGLASS = "coward";
 
@@ -33,7 +35,6 @@ function createGridUI(board) {
     });
     newElement.addEventListener("blockrequest", (ev) => {
       block.beingDragged();
-      console.log(block.getX() + ", " + block.getY());
       ev.detail.callback(block);
     });
   });

@@ -3,7 +3,7 @@ class autoPlayer {
   #opponentBoard;
   #myBoard;
   #lastAttackedBlock = null;
-  #targetedBlock = null;
+  #targetBlock = null;
   attackedAShip = false;
   constructor(myBoard, opponentBoard) {
     this.#opponentBoard = opponentBoard;
@@ -26,16 +26,16 @@ class autoPlayer {
 
     pause(this.#botWaitMilliSeconds).then(() => {
       let block;
-      if (this.#targetedBlock) {
-        if (!this.#targetedBlock.ship.isFleetSank) {
+      if (this.#targetBlock) {
+        if (!this.#targetBlock.getShip.isFleetSank) {
           console.log("the fleet i targeted didn't sink yet");
-          block = guessNextIndex(this.#opponentBoard, [
-            this.#targetedBlock.getX(),
-            this.#targetedBlock.getY(),
-          ]);
+          block = guessNextIndex(
+            this.#opponentBoard,
+            this.#targetBlock.getPos(),
+          );
         } else {
           console.log("the fleet i targeted already sank, i'll forget it");
-          this.#targetedBlock = null;
+          this.#targetBlock = null;
           const index = getRandomIndex(this.getIndexes().length);
           if (this.getIndexes()[index] !== undefined) {
             const value = this.getIndexes()[index];
@@ -51,11 +51,11 @@ class autoPlayer {
           !this.#lastAttackedBlock.getShip.isFleetSank
         ) {
           console.log("I started targeting a new fleet");
-          this.#targetedBlock = this.#lastAttackedBlock;
-          block = guessNextIndex(this.#opponentBoard, [
-            this.#targetedBlock.getX(),
-            this.#targetedBlock.getY(),
-          ]);
+          this.#targetBlock = this.#lastAttackedBlock;
+          block = guessNextIndex(
+            this.#opponentBoard,
+            this.#targetBlock.getPos(),
+          );
         } else {
           const index = getRandomIndex(this.getIndexes().length);
           if (this.getIndexes()[index] !== undefined) {
@@ -153,10 +153,7 @@ function guessNextIndex(board, pos) {
 
     const x = blocksWithShips[randomIndex][0];
     const y = blocksWithShips[randomIndex][1];
-    return guessNextIndex(board, [
-      board.getBlock(x, y).getX(),
-      board.getBlock(x, y).getY(),
-    ]);
+    return guessNextIndex(board, board.getBlock(x, y).getPos());
   } else throw new Error("Bot failed to find the rest of the fleet");
 }
 

@@ -1,7 +1,5 @@
+import Block from "./block.js";
 import { createGridUI } from "./boardUI.js";
-
-const EMPTY_HIT_STATE = "empty";
-const SHIP_HIT_STATE = "ship";
 
 class GameBoard {
   constructor(clickable, shipsHidden, editable, dimensions = 10) {
@@ -12,7 +10,7 @@ class GameBoard {
     this.DOMCallback = null;
     this.shipsCount = 0;
     this.destroyedShipsCount = 0;
-    this.finished = false;
+    this.cleared = false;
     this.clickable = clickable;
     this.shipsHidden = shipsHidden;
     this.active = false;
@@ -20,32 +18,31 @@ class GameBoard {
     initializeGrid(this.dimensions, this);
   }
 
-  ready() {
-    createGridUI(this);
-    updateALLBlocksUI(this);
-    this.callDOMCallback();
-  }
-
   isClickable = () => this.clickable;
   isShipsHidden = () => this.shipsHidden;
-  isFinished = () => this.finished;
+  isFinished = () => this.cleared;
   isActive = () => this.active;
   isEditable = () => this.editable;
   getArray = () => this.blocks;
   getDimensions = () => this.dimensions;
-
-  getLength() {
-    return this.blocks.filter(() => true).length;
-  }
+  getLength = () => this.blocks.filter(() => true).length;
   getBlock(x, y) {
     const block = this.blocks.find(
-      (item) => item && item.getX() === x && item.getY() === y,
+      (item) => item && item.getPos()[0] === x && item.getPos()[1] === y,
     );
     return block;
   }
-  getBlockByIndex(index) {
-    if (this.blocks[index]) return this.blocks[index];
-    else console.log("Item not found");
+
+  // Remove if not necessary
+  // getBlockByIndex(index) {
+  //   if (this.blocks[index]) return this.blocks[index];
+  //   else console.log("Item not found");
+  // }
+
+  ready() {
+    createGridUI(this);
+    updateALLBlocksUI(this);
+    this.callDOMCallback();
   }
   setBoardState(clickable, shipsHidden, active, editable) {
     let needUpdate = false;
@@ -62,22 +59,36 @@ class GameBoard {
     }
     if (this.active !== active) {
       this.active = active;
-      this.callDOMCallback();
+      needUpdate = true;
     }
     if (needUpdate) {
+      this.callDOMCallback();
       updateALLBlocksUI(this);
+    }
+  }
+  hasBeenAttacked(block) {
+    if (block.isHaveShip) {
+      this.loseFleet();
+      markSafeBlocks(this, block.getPos());
+    }
+    const args = block.isHaveShip ? "ship" : "";
+    this.callHitCallback(args);
+  }
+  addFleet = () => this.shipsCount++;
+  loseFleet() {
+    this.destroyedShipsCount++;
+    if (this.destroyedShipsCount >= this.shipsCount) {
+      this.cleared = true;
     }
   }
 
   setHitCallback(callback) {
-    this.hitCallback = callback;
+    if (!this.hitCallback) {
+      this.hitCallback = callback;
+    }
   }
   setDOMCallback(callback) {
     this.DOMCallback = callback;
-  }
-  hasBeenAttacked(state, pos) {
-    console.log(`attacked: (${pos[0]}, ${pos[1]})`);
-    this.hitCallback(state);
   }
   callDOMCallback() {
     if (this.DOMCallback) {
@@ -86,12 +97,9 @@ class GameBoard {
       console.error("DOMCallback is not assigned");
     }
   }
-
-  addFleet = () => this.shipsCount++;
-  loseFleet() {
-    this.destroyedShipsCount++;
-    if (this.destroyedShipsCount === this.shipsCount) {
-      this.finished = true;
+  callHitCallback(args) {
+    if (this.hitCallback) {
+      this.hitCallback(args);
     }
   }
 }
@@ -114,106 +122,6 @@ function updateALLBlocksUI(board) {
   });
 }
 
-class Block {
-  #board;
-  #pos;
-  #myShip;
-  #DOMUpdateCallback;
-  DOMEelement;
-  #attacked = false;
-  #safe = false;
-  #haveShip = false;
-
-  constructor(x, y, gameBoard) {
-    this.#board = gameBoard;
-    this.#pos = Array(2);
-    this.#pos[0] = x;
-    this.#pos[1] = y;
-  }
-
-  getX = () => this.#pos[0];
-  getY = () => this.#pos[1];
-
-  get getGameBoard() {
-    return this.#board;
-  }
-  get isAttacked() {
-    return this.#attacked;
-  }
-  get isSafe() {
-    return this.#safe;
-  }
-  get isHaveShip() {
-    return this.#haveShip;
-  }
-  get getShip() {
-    return this.#myShip;
-  }
-  get getDOMElement() {
-    return this.DOMEelement;
-  }
-  attack(bot = false) {
-    if (!bot && !this.#board.isClickable()) {
-      return;
-    }
-    if (!this.#attacked && !this.#safe) {
-      this.#attacked = true;
-      if (this.#haveShip) {
-        this.#myShip.sink();
-        this.#board.loseFleet();
-        this.#board.hasBeenAttacked(SHIP_HIT_STATE, [this.getX(), this.getY()]);
-        markSafeBlocks(this.#board, this.#pos);
-      } else {
-        this.#board.hasBeenAttacked(EMPTY_HIT_STATE, [
-          this.getX(),
-          this.getY(),
-        ]);
-      }
-      if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
-    } else if (bot) {
-      if (this.#attacked)
-        console.error("bot trying to attack already attacked block");
-      else if (this.#safe) console.error("bot trying to attack a safe block");
-    }
-  }
-  markSafe() {
-    if (!this.#attacked && !this.#safe) {
-      console.log(`Safe: (${this.#pos[0]}, ${this.#pos[1]})`);
-      this.#safe = true;
-      if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
-    }
-  }
-  placeShip(ship) {
-    if (!this.#haveShip) {
-      this.#myShip = ship;
-      this.#haveShip = true;
-      this.#board.addFleet();
-      if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
-    }
-  }
-  removeShip() {
-    this.#myShip = null;
-    this.#haveShip = false;
-    this.#board.loseFleet();
-    if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
-  }
-  fleetHasSank() {
-    markSafeBlocks(this.#board, this.#pos);
-    if (this.#DOMUpdateCallback) this.callDOMUpdateCallback();
-  }
-  setDOMInfo(element, callback) {
-    this.#DOMUpdateCallback = callback;
-    this.DOMEelement = element;
-  }
-  callDOMUpdateCallback() {
-    if (this.#DOMUpdateCallback) this.#DOMUpdateCallback();
-    else console.error("DOMUpdateCallback is not assigned");
-  }
-  beingDragged() {
-    console.log("fuck, I'm being dragged");
-  }
-}
-
 function markSafeBlocks(board, pos) {
   let x = pos[0];
   let y = pos[1];
@@ -224,7 +132,7 @@ function markSafeBlocks(board, pos) {
     if (!block.isHaveShip) block.markSafe();
     else
       throw new Error(
-        `Cross safe block has a ship! (${block.getX()}, ${block.getY()})`,
+        `Cross safe block has a ship! (${block.getPos()[0]}, ${block.getPos()[1]})`,
       );
   });
 

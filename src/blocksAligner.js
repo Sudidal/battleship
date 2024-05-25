@@ -14,16 +14,14 @@ function randomPosition(board, fleet, triedCoords = null) {
   }
   const randomIndex = Math.floor(Math.random() * (triedCoords.length - 1));
   const block = board.getArray()[randomIndex];
-  let x;
-  let y;
+  let pos;
   if (block) {
-    x = block.getX();
-    y = block.getY();
+    pos = block.getPos();
   }
-  const valid = checkBlockValidity(board, fleet, [x, y]);
+  const valid = checkBlockValidity(board, fleet, pos);
   if (valid) {
     // console.log(`(${x}, ${y})`);
-    return [x, y];
+    return pos;
   } else {
     // console.log(`invalid, choosing another coord: (${x}, ${y})`);
     triedCoords.splice(randomIndex, 1);

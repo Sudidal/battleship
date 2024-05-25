@@ -11,8 +11,8 @@ describe("GameBoard", () => {
   });
   test("GameBoard assinged blocks", () => {
     const block = newGameBoard.getBlock(9, 9);
-    expect(block.getX()).toBe(9);
-    expect(block.getY()).toBe(9);
+    expect(block.getPos()[0]).toBe(9);
+    expect(block.getPos()[1]).toBe(9);
   });
   test("blocks get attacked", () => {
     const block = newGameBoard.getBlock(2, 5);
