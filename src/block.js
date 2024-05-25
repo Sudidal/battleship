@@ -70,6 +70,7 @@ class Block {
   }
   fleetHasSank() {
     this.callDOMUpdateCallback();
+    // TODO: tell the gameboard to mark safe blocks
   }
   removeShip() {
     this.#myShip = null;

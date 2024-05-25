@@ -1,5 +1,5 @@
 import { GameBoard } from "./gameBoard.js";
-import { Fleet } from "./fleet.js";
+import Fleet from "./fleet.js";
 import { randomPosition, randomAlign } from "./blocksAligner.js";
 
 const fleets = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
