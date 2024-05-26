@@ -1,173 +1,147 @@
+import removeUnavailableBlocks from "./removeUnavailableBlocks.js";
+import getSorroundingBlocks from "./getSorroundingBlocks.js";
+import InvokeWitDelay from "./InvokeWithDelay.js";
+
 class autoPlayer {
   #botWaitMilliSeconds = 2000;
   #opponentBoard;
   #myBoard;
-  #lastAttackedBlock = null;
+  #lastAttacked = null;
   #targetBlock = null;
   attackedAShip = false;
   constructor(myBoard, opponentBoard) {
     this.#opponentBoard = opponentBoard;
     this.#myBoard = myBoard;
     this.length = myBoard.getLength();
-    this.indexes = Array(this.length);
+    this.availableBlocks = Array(this.length);
     for (let i = 0; i < this.length; i++) {
-      this.indexes[i] = i;
+      this.availableBlocks[i] = i;
     }
   }
 
-  getIndexes = () => this.indexes;
-
-  chooseBlock() {
-    removeInactiveBlocks(this.getIndexes(), this.#opponentBoard.getArray());
-    if (this.getIndexes().length < 1) {
+  play() {
+    removeUnavailableBlocks(
+      this.getAvailableBlocks(),
+      this.#opponentBoard.getArray(),
+    );
+    if (this.getAvailableBlocks().length < 1) {
       throw new Error("Bot array is out of indexes before the game ends");
     }
-    console.log(this.getIndexes());
 
-    pause(this.#botWaitMilliSeconds).then(() => {
-      let block;
-      if (this.#targetBlock) {
-        if (!this.#targetBlock.getShip.isFleetSank) {
-          console.log("the fleet i targeted didn't sink yet");
-          block = guessNextIndex(
-            this.#opponentBoard,
-            this.#targetBlock.getPos(),
-          );
-        } else {
-          console.log("the fleet i targeted already sank, i'll forget it");
-          this.#targetBlock = null;
-          const index = getRandomIndex(this.getIndexes().length);
-          if (this.getIndexes()[index] !== undefined) {
-            const value = this.getIndexes()[index];
-            block = this.#opponentBoard.getArray()[value];
-          } else {
-            throw new Error("Index out of array bounds " + index);
-          }
+    InvokeWitDelay(this.#botWaitMilliSeconds).then(() => {
+      const chosenBlock = choseBlock(this.#opponentBoard, this);
+
+      if (chosenBlock) {
+        this.setLastAttacked(chosenBlock);
+        if (chosenBlock.isHaveShip) {
+          this.setTargetBlock(chosenBlock);
         }
-      } else {
-        if (
-          this.#lastAttackedBlock &&
-          this.#lastAttackedBlock.isHaveShip &&
-          !this.#lastAttackedBlock.getShip.isFleetSank
-        ) {
-          console.log("I started targeting a new fleet");
-          this.#targetBlock = this.#lastAttackedBlock;
-          block = guessNextIndex(
-            this.#opponentBoard,
-            this.#targetBlock.getPos(),
-          );
-        } else {
-          const index = getRandomIndex(this.getIndexes().length);
-          if (this.getIndexes()[index] !== undefined) {
-            const value = this.getIndexes()[index];
-            block = this.#opponentBoard.getArray()[value];
-          } else {
-            throw new Error("Index out of array bounds " + index);
-          }
-        }
-      }
-      if (block) {
-        this.#lastAttackedBlock = block;
-        block.attack(true);
+        chosenBlock.attack(true);
       } else {
         throw new Error("Bot failed to find a block");
       }
     });
   }
+
+  getAvailableBlocks = () => this.availableBlocks;
+  getLastAttacked = () => this.#lastAttacked;
+  getTargetBlock = () => this.#targetBlock;
+
+  setLastAttacked = (input) => (this.#lastAttacked = input);
+  setTargetBlock = (input) => (this.#targetBlock = input);
 }
 
-function getRandomIndex(length) {
-  const random = Math.floor(Math.random() * (length - 1));
-  return random;
-}
-function guessNextIndex(board, pos) {
-  const x = pos[0];
-  const y = pos[1];
+function choseBlock(board, autoPlayer) {
+  let lastAttackedValue = autoPlayer.getLastAttacked();
+  let targetBlockValue = autoPlayer.getTargetBlock();
 
+  let chosenBlock;
+
+  if (targetBlockValue) {
+    if (!targetBlockValue.getShip.isFleetSank) {
+      console.log("the fleet i targeted didn't sink yet");
+    } else {
+      console.log("the fleet i targeted already sank, i'll forget it");
+      targetBlockValue = null;
+    }
+  } else {
+    if (
+      lastAttackedValue &&
+      lastAttackedValue.isHaveShip &&
+      !lastAttackedValue.getShip.isFleetSank
+    ) {
+      console.log("I started targeting a new fleet");
+      targetBlockValue = lastAttackedValue;
+    }
+  }
+
+  if (targetBlockValue) {
+    chosenBlock = chooseRelativeBlock(board, targetBlockValue.getPos()); // defalt Random
+  } else {
+    chosenBlock = chooseRandomBlock(autoPlayer.getAvailableBlocks(), board);
+  }
+  return chosenBlock;
+}
+
+function chooseRandomBlock(arr, board) {
+  let chosenBlock;
+  const random = Math.floor(Math.random() * (arr.length - 1));
+  if (arr[random]) {
+    const value = arr[random];
+    chosenBlock = board.getArray()[value];
+  } else {
+    throw new Error("Index out of array bounds, " + random);
+  }
+  return chosenBlock;
+}
+
+function chooseRelativeBlock(board, pos, triedBlocks = []) {
   let possibleBlocks = Array();
-  let blocksWithShips = Array();
+  let attackedBlocks = Array();
 
-  if (board.getBlock(x + 1, y)) {
-    const right = [x + 1, y];
-    if (board.getBlock(right[0], right[1])) {
-      if (board.getBlock(right[0], right[1]).isAttacked) {
-        blocksWithShips.push(right);
-      } else if (
-        !board.getBlock(right[0], right[1]).isAttacked &&
-        !board.getBlock(right[0], right[1]).isSafe
-      ) {
-        console.log("I can go right");
-        possibleBlocks.push(right);
+  const sorroundings = getSorroundingBlocks(board, pos, false, true);
+
+  sorroundings.forEach((block) => {
+    if (block.isHaveShip && block.isAttacked) {
+      let tried = false;
+      if (triedBlocks.length > 0) {
+        for (let i = 0; i < triedBlocks.length; i++) {
+          if (triedBlocks[i] === block) tried = true;
+        }
+      }
+      if (!tried) {
+        attackedBlocks.push(block);
+      }
+    } else {
+      if (!block.isAttacked && !block.isSafe) {
+        possibleBlocks.push(block);
       }
     }
-  }
-  const left = [x - 1, y];
-  if (board.getBlock(left[0], left[1])) {
-    if (board.getBlock(left[0], left[1]).isAttacked) {
-      blocksWithShips.push(left);
-    } else if (
-      !board.getBlock(left[0], left[1]).isAttacked &&
-      !board.getBlock(left[0], left[1]).isSafe
-    ) {
-      console.log("I can go left");
-      possibleBlocks.push(left);
-    }
-  }
-  const up = [x, y - 1];
-  if (board.getBlock(up[0], up[1])) {
-    if (board.getBlock(up[0], up[1]).isAttacked) {
-      blocksWithShips.push(up);
-    } else if (
-      !board.getBlock(up[0], up[1]).isAttacked &&
-      !board.getBlock(up[0], up[1]).isSafe
-    ) {
-      console.log("I can go up");
-      possibleBlocks.push(up);
-    }
-  }
-  const down = [x, y + 1];
-  if (board.getBlock(down[0], down[1])) {
-    if (board.getBlock(down[0], down[1]).isAttacked) {
-      blocksWithShips.push(down);
-    } else if (
-      !board.getBlock(down[0], down[1]).isAttacked &&
-      !board.getBlock(down[0], down[1]).isSafe
-    ) {
-      console.log("I can go down");
-      possibleBlocks.push(down);
-    }
-  }
+  });
+
   console.log(possibleBlocks);
+  console.log(attackedBlocks);
+
   if (possibleBlocks.length > 0) {
+    // there are empty blocks around
     const randomIndex = Math.floor(Math.random() * (possibleBlocks.length - 1));
-    console.log(possibleBlocks[randomIndex]);
-    return board.getBlock(
-      possibleBlocks[randomIndex][0],
-      possibleBlocks[randomIndex][1],
-    );
-  } else if (blocksWithShips.length > 0) {
-    const randomIndex = Math.floor(
-      Math.random() * (blocksWithShips.length - 1),
-    );
-    // Error too much recursion
-
-    const x = blocksWithShips[randomIndex][0];
-    const y = blocksWithShips[randomIndex][1];
-    return guessNextIndex(board, board.getBlock(x, y).getPos());
-  } else throw new Error("Bot failed to find the rest of the fleet");
-}
-
-function removeInactiveBlocks(indexesArr, blocksArr) {
-  for (let i = 0; i < indexesArr.length; i++) {
-    const index = indexesArr[i];
-    if (blocksArr[index].isSafe || blocksArr[index].isAttacked) {
-      indexesArr.splice(i, 1);
-    }
+    console.log(possibleBlocks[randomIndex].getPos());
+    return possibleBlocks[randomIndex];
+  } else if (attackedBlocks.length > 0) {
+    // no empty blocks around
+    // try another route
+    const randomIndex = Math.floor(Math.random() * (attackedBlocks.length - 1));
+    const randomBlock = attackedBlocks[randomIndex];
+    console.log("jumped to " + randomBlock.getPos());
+    triedBlocks.push(randomBlock);
+    return chooseRelativeBlock(board, randomBlock.getPos(), triedBlocks);
+  } else {
+    // That means the recursion reached a corner and can't go back
+    // remove this route and go back
+    triedBlocks = [];
+    triedBlocks.push(board.getBlock(pos[0], pos[1]));
+    return chooseRelativeBlock(board, pos, triedBlocks);
   }
-}
-
-function pause(time) {
-  return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 export { autoPlayer };

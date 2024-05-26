@@ -46,7 +46,7 @@ function botTurn() {
   console.log("it's bot's turn");
   playerBoard.setBoardState(false, false, true, false);
   botBoard.setBoardState(false, true, false, false);
-  bot.chooseBlock();
+  bot.play();
 }
 function End() {
   playerBoard.setBoardState(false, false, false, false);
