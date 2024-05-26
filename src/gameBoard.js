@@ -63,14 +63,17 @@ class GameBoard {
   }
   hasBeenAttacked(block) {
     if (block.isHaveShip) {
-      this.loseFleet();
+      this.loseShip();
       markSafeBlocks(this, block.getPos());
     }
     const args = block.isHaveShip ? "ship" : "";
     this.callHitCallback(args);
   }
-  addFleet = () => this.shipsCount++;
-  loseFleet() {
+  fleetHasSank(block) {
+    markSafeBlocks(this, block.getPos());
+  }
+  addShip = () => this.shipsCount++;
+  loseShip() {
     this.destroyedShipsCount++;
     if (this.destroyedShipsCount >= this.shipsCount) {
       this.cleared = true;

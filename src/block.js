@@ -64,18 +64,18 @@ class Block {
     if (!this.#haveShip) {
       this.#myShip = ship;
       this.#haveShip = true;
-      this.#board.addFleet();
+      this.#board.addShip();
       this.callDOMUpdateCallback();
     }
   }
   fleetHasSank() {
     this.callDOMUpdateCallback();
-    // TODO: tell the gameboard to mark safe blocks
+    this.#board.fleetHasSank(this);
   }
   removeShip() {
     this.#myShip = null;
     this.#haveShip = false;
-    this.#board.loseFleet();
+    this.#board.loseShip();
     this.callDOMUpdateCallback();
   }
   setDOMInfo(element, callback) {

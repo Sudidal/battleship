@@ -90,7 +90,9 @@ function chooseRandomBlock(arr, board) {
     const value = arr[random];
     chosenBlock = board.getArray()[value];
   } else {
-    throw new Error("Index out of array bounds, " + random);
+    throw new Error(
+      "Index out of array bounds, Index: " + random + ", Array: " + arr,
+    );
   }
   return chosenBlock;
 }
