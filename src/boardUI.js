@@ -34,7 +34,6 @@ function createGridUI(board) {
       block.attack();
     });
     newElement.addEventListener("blockrequest", (ev) => {
-      block.beingDragged();
       ev.detail.callback(block);
     });
   });

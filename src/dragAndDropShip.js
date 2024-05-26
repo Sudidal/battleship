@@ -95,7 +95,7 @@ function onReceiveBlockDrop(
   draggedBlock,
 ) {
   const fleet = draggedBlock.getShip.getFleet;
-  const pos = dropBlock.getPos;
+  const pos = dropBlock.getPos();
   const valid = checkBlockValidity(draggedBlock.getGameBoard, fleet, pos);
   if (valid) {
     fleet.initialize(pos);
