@@ -50,7 +50,10 @@ class Block {
     } else if (bot) {
       if (this.#attacked)
         console.error("bot trying to attack already attacked block");
-      else if (this.#safe) console.error("bot trying to attack a safe block");
+      else if (this.#safe)
+        console.error(
+          `bot trying to attack a safe block: (${this.#pos[0]}, ${this.#pos[1]})`,
+        );
     }
   }
   markSafe() {
