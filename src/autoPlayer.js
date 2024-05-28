@@ -85,14 +85,14 @@ function choseBlock(board, autoPlayer) {
 
 function chooseRandomBlock(arr, board) {
   let chosenBlock;
-  const random = Math.floor(Math.random() * (arr.length - 1));
-  if (arr[random]) {
-    const value = arr[random];
-    chosenBlock = board.getArray()[value];
-  } else {
+  const randomIndex = Math.floor(Math.random() * (arr.length - 1));
+  if (randomIndex > arr.length - 1 || randomIndex < 0) {
     throw new Error(
-      "Index out of array bounds, Index: " + random + ", Array: " + arr,
+      "Index out of array bounds, Index: " + randomIndex + ", Array: " + arr,
     );
+  } else {
+    const value = arr[randomIndex];
+    chosenBlock = board.getArray()[value];
   }
   return chosenBlock;
 }
