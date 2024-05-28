@@ -60,3 +60,14 @@ body {
   font-size: 15px;
   letter-spacing: 2px;
 }
+.floaty-block {
+  aspect-ratio: 1 / 1;
+}
+.valid-floaty-ship {
+  border: 3px solid green;
+  background-color: rgba(0, 128, 0, 0.3);
+}
+.invalid-floaty-ship {
+  border: 3px solid red; 
+  background-color: rgba(128, 0, 0, 0.3);
+}

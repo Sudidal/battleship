@@ -1,6 +1,7 @@
 import {
   setDefaultBehaviour,
   dragElement,
+  setElementPostion,
   setDragCallBack,
   setMoveCallback,
   setDropCallBack,
@@ -18,22 +19,28 @@ setDropCallBack(dropFleet);
 
 function dragFleet(dragEv) {
   event = dragEv;
-  requestBlock(dragEv.target, onReceiveBlockDrag);
-}
-function moveFleet(moveEv, draggedElement, posX, posY, moveFunction) {
-  requestBlock(moveEv.target, (moveBlock) => {
-    onReceiveBlockMove(draggedElement, moveBlock, posX, posY, moveFunction);
+  requestBlock(dragEv.target, (block) => {
+    onReceiveBlockDrag(block, dragEv.target);
   });
+}
+function moveFleet(moveEv, movedElement, posX, posY) {
+  if (moveEv.target.classList.contains("block"))
+    requestBlock(moveEv.target, (moveBlock) => {
+      onReceiveBlockMove(moveBlock, movedElement, posX, posY);
+    });
+  else onReceiveBlockMove(null, movedElement, posX, posY);
 }
 function dropFleet(dropEv, draggedElement) {
   event = null;
   const dropElement = dropEv.target;
-  requestBlock(dropElement, (dropBlock) => {
-    onReceiveBlockDrop(dropElement, draggedElement, dropBlock, draggedBlock);
-  });
+  if (dropElement.classList.contains("block"))
+    requestBlock(dropElement, (dropBlock) => {
+      onReceiveBlockDrop(dropElement, draggedElement, dropBlock, draggedBlock);
+    });
+  else onReceiveBlockDrop(dropElement, draggedElement, null, draggedBlock);
 }
 
-function onReceiveBlockDrag(block) {
+function onReceiveBlockDrag(block, element) {
   draggedBlock = block;
   const fleet = block.getShip.getFleet;
   const dir = fleet.getDirection();
@@ -44,8 +51,10 @@ function onReceiveBlockDrag(block) {
   allShipsArr.forEach((ship) => {
     const shipElement = ship.block.getDOMElement;
     const shipElementCopy = shipElement.cloneNode(true);
+    shipElementCopy.className = "floaty-block";
     allShipsElement.append(shipElementCopy);
   });
+  console.log("clone");
 
   let sizeX = getComputedStyle(allShipsElement).width;
   let sizeY = getComputedStyle(allShipsElement).height;
@@ -59,6 +68,8 @@ function onReceiveBlockDrag(block) {
     dirString = "column";
   }
   allShipsElement.style.display = "flex";
+  allShipsElement.style.position = "absolute";
+  allShipsElement.style.pointerEvents = "none";
   allShipsElement.style.flexDirection = `${dirString}`;
   allShipsElement.style.width = sizeX;
   allShipsElement.style.height = sizeY;
@@ -71,21 +82,32 @@ function onReceiveBlockDrag(block) {
   };
 
   dragElement(obj);
+  onReceiveBlockMove(
+    draggedBlock,
+    allShipsElement,
+    obj.pageX - obj.offsetX,
+    obj.pageY - obj.offsetY,
+  );
 }
 
-function onReceiveBlockMove(element, moveBlock, posX, posY, moveFunction) {
-  const pos = moveBlock.getPos();
-  const valid = checkBlockValidity(
-    draggedBlock.getGameBoard,
-    draggedBlock.getShip.getFleet,
-    pos,
-  );
-  if (valid) {
-    element.style.border = "1px solid green";
-  } else {
-    element.style.border = "1px solid red";
+function onReceiveBlockMove(moveBlock, moveElement, posX, posY) {
+  console.log("moving");
+  let valid = false;
+  if (moveBlock && moveBlock.getGameBoard === draggedBlock.getGameBoard) {
+    const pos = moveBlock.getPos();
+    valid = checkBlockValidity(
+      draggedBlock.getGameBoard,
+      draggedBlock.getShip.getFleet,
+      pos,
+    );
   }
-  moveFunction(element, posX, posY);
+  if (valid) {
+    moveElement.className = "valid-floaty-ship";
+  } else {
+    moveElement.className = "invalid-floaty-ship";
+  }
+  console.log("did the job");
+  setElementPostion(moveElement, posX, posY);
 }
 
 function onReceiveBlockDrop(
@@ -95,10 +117,12 @@ function onReceiveBlockDrop(
   draggedBlock,
 ) {
   const fleet = draggedBlock.getShip.getFleet;
-  const pos = dropBlock.getPos();
-  const valid = checkBlockValidity(draggedBlock.getGameBoard, fleet, pos);
-  if (valid) {
-    fleet.initialize(pos);
+  if (dropBlock) {
+    const pos = dropBlock.getPos();
+    const valid = checkBlockValidity(draggedBlock.getGameBoard, fleet, pos);
+    if (valid) {
+      fleet.initialize(pos);
+    }
   }
   draggedElement.remove();
   draggedBlock = null;

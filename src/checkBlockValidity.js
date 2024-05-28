@@ -4,8 +4,14 @@ function checkBlockValidity(board, fleet, pos) {
   const x = pos[0];
   const y = pos[1];
 
-  const blocksToTake = fleet.calculateBlocksToTake([x, y]);
   let valid = true;
+
+  if (board.getBlock(x, y).isHaveShip) {
+    valid = false;
+    return valid;
+  }
+
+  const blocksToTake = fleet.calculateBlocksToTake([x, y]);
 
   if (blocksToTake.length > 0) {
     blocksToTake.forEach((blockToTake) => {

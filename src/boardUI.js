@@ -79,7 +79,7 @@ function updateBoardElement(board, boardElement) {
   }
 }
 
-function requestBlock(element, callback) {
+function requestBlock(element, callback, fallback = null) {
   const data = { callback: callback };
   const blockRequestEvent = new CustomEvent("blockrequest", { detail: data });
   console.log(element);
