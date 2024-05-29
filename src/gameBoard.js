@@ -40,24 +40,28 @@ class GameBoard {
     this.callDOMCallback();
   }
   setBoardState(clickable, shipsHidden, active, editable) {
-    let needUpdate = false;
+    let gridNeedUpdate = false;
+    let blocksNeedUpdate = false;
     if (this.clickable !== clickable) {
       this.clickable = clickable;
     }
     if (this.shipsHidden !== shipsHidden) {
       this.shipsHidden = shipsHidden;
-      needUpdate = true;
+      blocksNeedUpdate = true;
     }
     if (this.editable !== editable) {
       this.editable = editable;
-      needUpdate = true;
+      gridNeedUpdate = true;
     }
     if (this.active !== active) {
       this.active = active;
-      needUpdate = true;
+      gridNeedUpdate = true;
     }
-    if (needUpdate) {
+    if (gridNeedUpdate) {
+      console.log("Updating grid UI");
       this.callDOMCallback();
+    }
+    if (blocksNeedUpdate) {
       updateALLBlocksUI(this);
     }
   }
@@ -114,7 +118,7 @@ function initializeGrid(dimensions, board) {
   console.log("initialized Grid");
 }
 function updateALLBlocksUI(board) {
-  console.log("updating all blocks");
+  console.log("Updating all blocks UI");
   board.getArray().forEach((block) => {
     block.callDOMUpdateCallback();
   });

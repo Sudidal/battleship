@@ -121,13 +121,9 @@ function chooseRelativeBlock(board, pos, triedBlocks = []) {
     }
   });
 
-  console.log(possibleBlocks);
-  console.log(attackedBlocks);
-
   if (possibleBlocks.length > 0) {
     // there are empty blocks around
     const randomIndex = Math.floor(Math.random() * (possibleBlocks.length - 1));
-    console.log(possibleBlocks[randomIndex].getPos());
     return possibleBlocks[randomIndex];
   } else if (attackedBlocks.length > 0) {
     // no empty blocks around

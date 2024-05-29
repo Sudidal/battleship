@@ -58,7 +58,6 @@ class Block {
   }
   markSafe() {
     if (!this.#attacked && !this.#safe) {
-      console.log(`Safe: (${this.#pos[0]}, ${this.#pos[1]})`);
       this.#safe = true;
       this.callDOMUpdateCallback();
     }
