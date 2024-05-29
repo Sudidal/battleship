@@ -3,7 +3,7 @@ import getSorroundingBlocks from "./getSorroundingBlocks.js";
 import InvokeWitDelay from "./InvokeWithDelay.js";
 
 class autoPlayer {
-  #botWaitMilliSeconds = 1500;
+  #botWaitMilliSeconds = 10;
   #opponentBoard;
   #myBoard;
   #lastAttacked = null;

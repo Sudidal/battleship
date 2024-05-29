@@ -3,6 +3,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: sans-serif;
+  user-select: none;
 }
 
 body {
@@ -12,10 +13,34 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 50px;
 }
+
+.start-btn {
+  width: 100%;
+  height: 30px;
+  font-weight: bold;
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+
+.message {
+  height: 30px;
+  padding-right: 10px;
+  padding-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: rgba(151, 151, 151, 0.432);
+  cursor: default;
+}
+
 .grid-container {
-  padding: 20px;
-  height: 100%;
+  width: 100%;
+  padding-right: 20px;
+  padding-left: 20px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -53,12 +78,6 @@ body {
 }
 .fleet-sank-block {
   background-color: rgb(112, 0, 0);
-}
-.start-btn {
-  height: 30px;
-  font-weight: bold;
-  font-size: 15px;
-  letter-spacing: 2px;
 }
 .floaty-block {
   aspect-ratio: 1 / 1;

@@ -52,6 +52,7 @@ class GameBoard {
     if (this.editable !== editable) {
       this.editable = editable;
       gridNeedUpdate = true;
+      blocksNeedUpdate = true;
     }
     if (this.active !== active) {
       this.active = active;

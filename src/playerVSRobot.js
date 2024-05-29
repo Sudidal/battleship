@@ -1,5 +1,5 @@
 import { createGameBoard } from "./initializer.js";
-import { UIGameEnd } from "./UI.js";
+import { displayInstructions, UIGameEnd } from "./UI.js";
 import { autoPlayer } from "./autoPlayer.js";
 
 let playerBoard;
@@ -40,6 +40,7 @@ function startPlayerVsRobot() {
 
 function startGame() {
   playerTurn();
+  displayInstructions();
 }
 
 function playerTurn() {
