@@ -1,9 +1,11 @@
 import removeUnavailableBlocks from "./removeUnavailableBlocks.js";
 import getSorroundingBlocks from "./getSorroundingBlocks.js";
 import InvokeWitDelay from "./InvokeWithDelay.js";
+import { getRandomArbitraryInt } from "./getRandomArbitrary.js";
 
 class autoPlayer {
-  #botWaitMilliSeconds = 10;
+  #WaitMilliSecondsMax = 3000;
+  #WaitMilliSecondsMin = 250;
   #opponentBoard;
   #myBoard;
   #lastAttacked = null;
@@ -20,7 +22,12 @@ class autoPlayer {
   }
 
   play() {
-    InvokeWitDelay(this.#botWaitMilliSeconds).then(() => {
+    const delay = getRandomArbitraryInt(
+      this.#WaitMilliSecondsMax,
+      this.#WaitMilliSecondsMin,
+    );
+    console.log(delay);
+    InvokeWitDelay(delay).then(() => {
       const chosenBlock = choseBlock(this.#opponentBoard, this);
 
       if (chosenBlock) {
