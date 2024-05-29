@@ -99,6 +99,7 @@ function onReceiveBlockMove(moveBlock, moveElement, posX, posY) {
       draggedBlock.getGameBoard,
       draggedBlock.getShip.getFleet,
       pos,
+      draggedBlock,
     );
   }
   if (valid) {

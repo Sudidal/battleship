@@ -1,14 +1,16 @@
 import { getSorroundingBlocks } from "./gameBoard.js";
 
-function checkBlockValidity(board, fleet, pos) {
+function checkBlockValidity(board, fleet, pos, block = null) {
   const x = pos[0];
   const y = pos[1];
 
   let valid = true;
 
   if (board.getBlock(x, y).isHaveShip) {
-    valid = false;
-    return valid;
+    if (block && board.getBlock(x, y).getShip.fleet !== block.getShip.fleet) {
+      valid = false;
+      return valid;
+    }
   }
 
   const blocksToTake = fleet.calculateBlocksToTake([x, y]);
