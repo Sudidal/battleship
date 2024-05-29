@@ -3,7 +3,7 @@ import getSorroundingBlocks from "./getSorroundingBlocks.js";
 import InvokeWitDelay from "./InvokeWithDelay.js";
 
 class autoPlayer {
-  #botWaitMilliSeconds = 2000;
+  #botWaitMilliSeconds = 1500;
   #opponentBoard;
   #myBoard;
   #lastAttacked = null;
@@ -44,8 +44,8 @@ class autoPlayer {
 }
 
 function choseBlock(board, autoPlayer) {
-  removeUnavailableBlocks(board.getAvailableBlocks(), board.getArray());
-  if (this.getAvailableBlocks().length < 1) {
+  removeUnavailableBlocks(autoPlayer.getAvailableBlocks(), board.getArray());
+  if (autoPlayer.getAvailableBlocks().length < 1) {
     throw new Error("Bot array is out of indexes before the game ends");
   }
 
