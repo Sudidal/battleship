@@ -108,15 +108,17 @@ function chooseRelativeBlock(board, pos, triedBlocks = []) {
   const sorroundings = getSorroundingBlocks(board, pos, false, true);
 
   sorroundings.forEach((block) => {
-    if (block.isHaveShip && block.isAttacked) {
-      let tried = false;
-      if (triedBlocks.length > 0) {
-        for (let i = 0; i < triedBlocks.length; i++) {
-          if (triedBlocks[i] === block) tried = true;
+    if (block.isAttacked || block.isSafe) {
+      if (block.isHaveShip) {
+        let tried = false;
+        if (triedBlocks.length > 0) {
+          for (let i = 0; i < triedBlocks.length; i++) {
+            if (triedBlocks[i] === block) tried = true;
+          }
         }
-      }
-      if (!tried) {
-        attackedBlocks.push(block);
+        if (!tried) {
+          attackedBlocks.push(block);
+        }
       }
     } else {
       if (!block.isAttacked && !block.isSafe) {
