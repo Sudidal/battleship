@@ -6,9 +6,18 @@
   user-select: none;
 }
 
-body {
-  height: 100vh;
+.background {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: -1;
+  background: url("https://img.freepik.com/free-photo/vintage-grungy-textured-paper-background_53876-103932.jpg?t=st=1716980323~exp=1716983923~hmac=ba1fe1ea7d0598c8155d5cf53a2a21e825a066b3ca6a731788b65e5ecca75289&w=740");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  filter: contrast(85%);
 }
+
 .container {
   height: 100%;
   display: flex;
@@ -19,21 +28,32 @@ body {
 
 .start-btn {
   width: 100%;
-  height: 30px;
+  height: 50px;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 18px;
   letter-spacing: 2px;
+  background-color: rgba(255, 255, 255, 0);
+  border: none;
+  border-bottom: 3px solid black;
+}
+.start-btn:hover {
+  box-sizing: content-box;
+  letter-spacing: 3px;
+  font-size: 20px;
+  border: none;
+  border-bottom: 5px solid black;
+  cursor: pointer;
 }
 
 .message {
   height: 30px;
-  padding-right: 10px;
-  padding-left: 10px;
+  padding-right: 30px;
+  padding-left: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  background-color: rgba(151, 151, 151, 0.432);
+  background-color: rgba(170, 170, 170, 0.3);
   cursor: default;
 }
 
@@ -44,40 +64,63 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 25px;
+  gap: 10%;
 }
 
 .board {
-  flex: 1;
+  width: 30%;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
 }
 .active-board {
-  --block-border-color: black;
+  --block-border: 3px dotted black;
 }
 .inactive-board {
-  --block-border-color: grey;
+  --block-border: 3px dotted grey;
 }
 
 .block {
-  border: 1px solid var(--block-border-color);
+  border: var(--block-border);
+  border-right: none;
+  border-bottom: none;
+  /* border-style: ; */
   aspect-ratio: 1 / 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.attacked-block {
+.block:nth-child(10n) {
+  border-right: var(--block-border);
+}
+.block:nth-child(n+91) {
+  border-bottom: var(--block-border);
+}
+.block:hover {
+  cursor: pointer;
+  border: 3px solid black;
+}
+.block .sign {
+  width: 80%;
+  height: 80%;
+  border-radius: 30%;
+  pointer-events: none;
+}
+.attacked-block .sign {
   background-color: black;
 }
-.ship-block {
+.ship-block div {
   background-color: rgba(255, 0, 0, 0.349);
 }
-.sank-ship-block {
+.sank-ship-block .sign {
+  border-radius: 50%;
   background-color: rgb(255, 0, 0);
 }
-.safe-block {
-  background-color: rgb(104, 104, 104);
+.safe-block .sign {
+  background-color: rgba(129, 129, 129, 0.822);
 }
-.fleet-sank-block {
-  background-color: rgb(112, 0, 0);
+.fleet-sank-block .sign {
+  background-color: rgba(175, 0, 0);
 }
 .floaty-block {
   aspect-ratio: 1 / 1;
@@ -87,6 +130,22 @@ body {
   background-color: rgba(0, 128, 0, 0.3);
 }
 .invalid-floaty-ship {
-  border: 3px solid red; 
+  border: 3px solid red;
   background-color: rgba(128, 0, 0, 0.3);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+.footer .attribute {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.411);
+}
+
+.footer .reminder {
+  font-size: 10px;
+  color: rgba(0, 0, 0, 0.514);
 }

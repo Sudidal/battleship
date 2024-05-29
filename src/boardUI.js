@@ -26,6 +26,9 @@ function createGridUI(board) {
 
   blocks.forEach((block) => {
     const newElement = document.createElement("div");
+    const elementSign = document.createElement("div");
+    elementSign.classList.add("sign");
+    newElement.append(elementSign);
     boardElement.append(newElement);
     block.setDOMInfo(newElement, () => {
       updateBlockElement(newElement, block);
