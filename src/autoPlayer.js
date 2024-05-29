@@ -20,14 +20,6 @@ class autoPlayer {
   }
 
   play() {
-    removeUnavailableBlocks(
-      this.getAvailableBlocks(),
-      this.#opponentBoard.getArray(),
-    );
-    if (this.getAvailableBlocks().length < 1) {
-      throw new Error("Bot array is out of indexes before the game ends");
-    }
-
     InvokeWitDelay(this.#botWaitMilliSeconds).then(() => {
       const chosenBlock = choseBlock(this.#opponentBoard, this);
 
@@ -52,6 +44,11 @@ class autoPlayer {
 }
 
 function choseBlock(board, autoPlayer) {
+  removeUnavailableBlocks(board.getAvailableBlocks(), board.getArray());
+  if (this.getAvailableBlocks().length < 1) {
+    throw new Error("Bot array is out of indexes before the game ends");
+  }
+
   let lastAttackedValue = autoPlayer.getLastAttacked();
   let targetBlockValue = autoPlayer.getTargetBlock();
 
